@@ -1,4 +1,3 @@
-
 name: Prepare Release
 
 on:
@@ -36,7 +35,7 @@ jobs:
         id: semver_parser
         uses: booxmedialtd/ws-action/parse-semver@v1
         with:
-          input_string: '${{ github.event.inputs.version }}'
+          input_string: "${{ github.event.inputs.version }}"
 
       - name: Get branch name
         id: branch
@@ -69,7 +68,7 @@ jobs:
         uses: EndBug/add-and-commit@v6
         with:
           branch: master
-          message: 'Update version number to ${{ steps.semver_parser.outputs.fullversion }}'
+          message: "Update version number to ${{ steps.semver_parser.outputs.fullversion }}"
           push: true
 
       - name: Create pull request into release branch
@@ -77,5 +76,5 @@ jobs:
         with:
           pr_title: Bump version to ${{ steps.semver_parser.outputs.fullversion }}
           pr_body: ""
-          destination_branch: '${{ steps.branch.outputs.branch_name }}'
+          destination_branch: "${{ steps.branch.outputs.branch_name }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
