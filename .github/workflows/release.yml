@@ -1,0 +1,82 @@
+
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "The branch to release (example: release/0.1.x)"
+        required: true
+
+jobs:
+  release:
+    environment:
+      name: production
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: v${{ github.event.inputs.version }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Get project version
+        id: project-version
+        shell: pwsh
+        run: |
+          $project_version = (node -p "require('./package.json').version")
+          echo "::set-output name=version::$project_version"
+
+      - name: Parse semver string
+        id: semver_parser
+        uses: booxmedialtd/ws-action/parse-semver@v1
+        with:
+          input_string: ${{ steps.project-version.outputs.version }}
+
+      ### TODO: Tag release
+
+      - name: Get changelog entry
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v1.1.0
+        with:
+        ### TODO: IF prerelease, use Unreleased, otherwise use version
+          version: ${{ github.event.inputs.version }}
+          path: ./CHANGELOG.md
+
+      - name: Package
+        run: |
+          npm ci
+          npm run package
+
+        ### TODO: Mark prereleases
+      # - name: Publish to VSCode marketplace
+      #   run: npm run deploy -p ${{ secrets.VSCE_TOKEN }}
+
+        ### TODO: Mark prereleases
+        ### TODO: Mark drafts???
+      - name: Create Github release
+        id: create_github_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: Release v${{ github.event.inputs.version }}
+          body: ${{ steps.changelog_reader.outputs.log_entry }}
+          draft: false
+          prerelease: false
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_github_release.outputs.upload_url }}
+          asset_path: ./clang-tidy-${{ steps.project-version.outputs.version }}.vsix
+          asset_name: clang-tidy-${{ steps.project-version.outputs.version }}.vsix
+          asset_content_type: application/octet-stream

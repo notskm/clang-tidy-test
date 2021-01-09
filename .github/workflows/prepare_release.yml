@@ -1,0 +1,81 @@
+
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version number to prepare
+        required: true
+
+# 1: Create release branch if needed
+# 2: Push the release branch
+# 3: Update files and push to master
+# 4: Open a pull request into the release branch
+
+# 5: Wait for pull request to be completed
+
+# If pull request was accepted:
+# 6: Tag the latest commit in the release branch, push tag
+# 7: Release tagged commit
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+          ref: ${{ github.head_ref }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Parse semver string
+        id: semver_parser
+        uses: booxmedialtd/ws-action/parse-semver@v1
+        with:
+          input_string: '${{ github.event.inputs.version }}'
+
+      - name: Get branch name
+        id: branch
+        shell: pwsh
+        run: |
+          $branch = "release/${{ steps.semver_parser.outputs.major }}.${{ steps.semver_parser.outputs.minor }}.x"
+          echo "::set-output name=branch_name::$branch"
+
+      - name: Create release branch
+        shell: pwsh
+        run: |
+          $branch = "${{ steps.branch.outputs.branch_name }}"
+          if((git branch --list $branch) -ne $null) {
+            git switch -c $branch
+          }
+
+          git push -u origin $branch
+          git switch master
+
+      - name: Update version
+        run: npm version ${{ steps.semver_parser.outputs.fullversion }}
+
+      - name: Update changelog
+        uses: thomaseizinger/keep-a-changelog-new-release@v1
+        with:
+          version: ${{ steps.semver_parser.outputs.fullversion }}
+        if: ${{ steps.semver_parser.outputs.prerelease == '' }}
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v6
+        with:
+          branch: master
+          message: 'Update version number to ${{ steps.semver_parser.outputs.fullversion }}'
+          push: true
+
+      - name: Create pull request into release branch
+        uses: repo-sync/pull-request@v2
+        with:
+          pr_title: Bump version to ${{ steps.semver_parser.outputs.fullversion }}
+          pr_body: ""
+          destination_branch: '${{ steps.branch.outputs.branch_name }}'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
