@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2021-01-09
+
 ## [0.5.1] - 2020-05-25
 
 ### Fixed
@@ -82,13 +84,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Initial release
 
-[Unreleased]: https://github.com/notskm/vscode-clang-tidy/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/notskm/clang-tidy-test/compare/1.0.0...HEAD
+
+[1.0.0]: https://github.com/notskm/clang-tidy-test/compare/0.5.1...1.0.0
+
 [0.5.1]: https://github.com/notskm/vscode-clang-tidy/releases/tag/v0.5.1
+
 [0.5.0]: https://github.com/notskm/vscode-clang-tidy/releases/tag/v0.5.0
+
 [0.4.1]: https://github.com/notskm/vscode-clang-tidy/releases/tag/v0.4.1
+
 [0.4.0]: https://github.com/notskm/vscode-clang-tidy/releases/tag/v0.4.0
+
 [0.3.0]: https://github.com/notskm/vscode-clang-tidy/releases/tag/v0.3.0
+
 [0.2.2]: https://github.com/notskm/vscode-clang-tidy/releases/tag/v0.2.2
+
 [0.2.1]: https://github.com/notskm/vscode-clang-tidy/releases/tag/v0.2.1
+
 [0.2.0]: https://github.com/notskm/vscode-clang-tidy/releases/tag/v0.2.0
+
 [0.1.0]: https://github.com/notskm/vscode-clang-tidy/releases/tag/v0.1.0
