@@ -53,11 +53,22 @@ jobs:
             git switch -c $branch
           }
 
-          git push -u origin $branch
-          git switch master
+      - name: Setup git
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Push release branch
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ steps.branch.outputs.branch_name }}
+
+      - name: Switch back to master branch
+        run: git switch master
 
       - name: Update version
-        run: npm version ${{ steps.semver_parser.outputs.fullversion }}
+        run: npm version ${{ steps.semver_parser.outputs.fullversion }} --no-git-tag-version
 
       - name: Update changelog
         uses: thomaseizinger/keep-a-changelog-new-release@v1
