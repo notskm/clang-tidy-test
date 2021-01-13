@@ -18,7 +18,7 @@ jobs:
 
       - name: Create Temporary Branch Name
         id: temp_branch
-        run: echo "::set-output branch::cherry-pick-$(uuidgen)"
+        run: echo "::set-output name=branch::cherry-pick-$(uuidgen)"
 
       - name: Get Pull Request Branch
         run: git fetch origin pull/${{ github.event.client_payload.pull_request.number }}/head:${{ steps.temp_branch.outputs.branch }}
