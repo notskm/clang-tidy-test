@@ -11,6 +11,11 @@ jobs:
         with:
           ref: ${{ github.event.client_payload.slash_command.args.named.branch }}
 
+      - name: Setup git
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
       - name: Get Pull Request Branch
         run: git fetch origin pull/${{ github.event.client_payload.pull_request.number }}/head:pull_request_branch
 
