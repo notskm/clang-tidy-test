@@ -20,7 +20,7 @@ jobs:
       - name: Cherry Pick
         shell: pwsh
         run: |
-          Get-Content ${{ runner.temp }}/commits.json | ForEach-Object {
+          Get-Content ${{ runner.temp }}/commits.json | ConvertFrom-Json | ForEach-Object {
             git cherry-pick $_.sha
           }
 
