@@ -40,5 +40,6 @@ jobs:
         uses: repo-sync/pull-request@v2
         with:
           pr_title: Cherry-Pick from \#${{ github.event.client_payload.pull_request.number }} into ${{ github.event.client_payload.slash_command.args.named.branch }}
+          source_branch: ${{ steps.temp_branch.outputs.branch }}
           destination_branch: "${{ github.event.client_payload.slash_command.args.named.branch }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
