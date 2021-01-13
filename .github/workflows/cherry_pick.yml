@@ -7,18 +7,23 @@ jobs:
     if: ${{ github.event.client_payload.slash_command.command == 'cherry-pick'}}
     runs-on: ubuntu-latest
     steps:
-      - name: "Dump payload context"
-        env:
-          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
-        run: echo "$PAYLOAD_CONTEXT"
-
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.client_payload.slash_command.args.named.branch }}
-      # switch to target branch
-      # - name: Cherry Pick
-      #   run: |
-      #     git cherry-pick ...
-      # - name: Push
-      #   shell: git push origin ...
+
+      - name: Get Pull Request Branch
+        run: git fetch origin pull/${{ github.event.client_payload.github.pull_request.number }}/head:pull_request_branch
+
+      - name: Get Pull Request Commits
+        run: curl ${{ github.event.client_payload.github.pull_request._links.commits.href }} -o ${{ runner.temp }}/commits.json
+
+      - name: Cherry Pick
+        shell: pwsh
+        run: |
+          Get-Content ${{ runner.temp }}/commits.json | ForEach-Object {
+            git cherry-pick $_.sha
+          }
+
+      - name: Push
+        run: git push origin pull_request_branch
       # open a pull request from pushed branch into target branch
