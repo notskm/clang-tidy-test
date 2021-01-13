@@ -31,4 +31,10 @@ jobs:
 
       - name: Push
         run: git push origin pull_request_branch
-      # open a pull request from pushed branch into target branch
+
+      - name: Create Pull Request
+        uses: repo-sync/pull-request@v2
+        with:
+          pr_title: Cherry-Pick from \#${{ github.event.client_payload.pull_request.number }} into ${{  }}
+          destination_branch: "${{ github.event.client_payload.slash_command.args.named.branch }}"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
