@@ -16,8 +16,12 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
+      - name: Create Temporary Branch Name
+        id: temp_branch
+        run: echo "::set-output branch::cherry-pick-$(uuidgen)"
+
       - name: Get Pull Request Branch
-        run: git fetch origin pull/${{ github.event.client_payload.pull_request.number }}/head:pull_request_branch
+        run: git fetch origin pull/${{ github.event.client_payload.pull_request.number }}/head:${{ steps.temp_branch.outputs.branch }}
 
       - name: Get Pull Request Commits
         run: curl ${{ github.event.client_payload.pull_request._links.commits.href }} -o ${{ runner.temp }}/commits.json
@@ -30,11 +34,11 @@ jobs:
           }
 
       - name: Push
-        run: git push origin pull_request_branch
+        run: git push origin ${{ steps.temp_branch.outputs.branch }}
 
       - name: Create Pull Request
         uses: repo-sync/pull-request@v2
         with:
-          pr_title: Cherry-Pick from \#${{ github.event.client_payload.pull_request.number }} into ${{  }}
+          pr_title: Cherry-Pick from \#${{ github.event.client_payload.pull_request.number }} into ${{ github.event.client_payload.slash_command.args.named.branch }}
           destination_branch: "${{ github.event.client_payload.slash_command.args.named.branch }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
